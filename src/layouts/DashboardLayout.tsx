@@ -1,24 +1,39 @@
 import { ReactNode } from "react";
 import { useAuthStore } from "../store/auth.store";
+import { useNavigate } from "react-router-dom";
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+interface Props {
+  children: ReactNode;
+}
+
+export default function DashboardLayout({ children }: Props) {
   const logout = useAuthStore((state) => state.logout);
-  const user = useAuthStore((state) => state.user);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
-    <div className="flex h-screen">
-      <aside className="w-60 bg-black text-white p-6 space-y-4">
-        <h2 className="text-xl font-bold">Sismedika POS</h2>
-        <p className="text-sm opacity-70">{user?.name}</p>
+    <div className="flex min-h-screen bg-gray-100">
+      <aside className="w-64 bg-gray-900 text-white p-6 flex flex-col justify-between">
+        <div>
+          <h1 className="text-xl font-bold mb-10">Sismedika POS</h1>
+        </div>
+
         <button
-          onClick={logout}
-          className="mt-4 bg-red-500 w-full py-2 rounded"
+          onClick={handleLogout}
+          className="bg-red-600 hover:bg-red-700 transition px-4 py-2 rounded"
         >
           Logout
         </button>
       </aside>
 
-      <main className="flex-1 p-8 bg-gray-50">{children}</main>
+      {/* Content */}
+      <main className="flex-1 p-10">
+        <div className="bg-white rounded-xl shadow-md p-8">{children}</div>
+      </main>
     </div>
   );
 }

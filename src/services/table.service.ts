@@ -3,27 +3,20 @@ import { api } from "./api";
 export interface RestaurantTable {
   id: number;
   name: string;
-  status: string;
-}
-
-export interface Order {
-  data: any;
-  id: number;
-  table_id: number;
-  status: string;
-  total_price: number;
+  status: "available" | "occupied";
+  current_order_id?: number | null;
 }
 
 export const tableService = {
   async getAll(): Promise<RestaurantTable[]> {
-    const response = await api.get("/restaurant-tables");
-    return response.data;
+    const res = await api.get("/restaurant-tables");
+    return res.data.data ?? res.data;
   },
 
-  async openOrder(tableId: number): Promise<Order> {
-    const response = await api.post("/orders/open", {
+  async openOrder(tableId: number) {
+    const res = await api.post("/orders/open", {
       table_id: tableId,
     });
-    return response.data;
+    return res.data;
   },
 };
