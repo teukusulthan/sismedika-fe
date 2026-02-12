@@ -1,27 +1,32 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layouts/DashboardLayout";
-import { tableService } from "../services/table.service";
-
-interface Table {
-  id: number;
-  name: string;
-  status: string;
-}
+import { tableService, RestaurantTable } from "../services/table.service";
 
 export default function DashboardPage() {
-  const [tables, setTables] = useState<Table[]>([]);
+  const [tables, setTables] = useState<RestaurantTable[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTables = async () => {
-      const data = await tableService.getAll();
-      setTables(data.data ?? data);
+      try {
+        const data = await tableService.getAll();
+        setTables(data);
+      } catch (error) {
+        console.error("Failed to fetch tables", error);
+      }
     };
+
     fetchTables();
   }, []);
 
   const handleOpenOrder = async (tableId: number) => {
-    await tableService.openOrder(tableId);
-    alert("Order opened successfully");
+    try {
+      const order = await tableService.openOrder(tableId);
+      navigate(`/orders/${order.id}`);
+    } catch (error) {
+      console.error("Failed to open order", error);
+    }
   };
 
   return (
@@ -32,6 +37,7 @@ export default function DashboardPage() {
         {tables.map((table) => (
           <div key={table.id} className="border rounded p-4 bg-white shadow">
             <h2 className="font-semibold">{table.name}</h2>
+
             <p
               className={
                 table.status === "available" ? "text-green-600" : "text-red-600"
