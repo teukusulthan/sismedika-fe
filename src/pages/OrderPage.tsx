@@ -68,13 +68,15 @@ export default function OrderPage() {
       <h2 className="text-lg font-semibold mb-2">Items</h2>
 
       <div className="space-y-2 mb-6">
-        {order.items.map((item) => (
-          <div key={item.id} className="border p-3 rounded bg-white">
-            <p>{item.food.name}</p>
-            <p>Qty: {item.quantity}</p>
-            <p>Subtotal: Rp {item.subtotal}</p>
-          </div>
-        ))}
+        {order?.items?.length > 0 ? (
+          order.items.map((item) => (
+            <div key={item.id}>
+              {item.food.name} - {item.quantity}
+            </div>
+          ))
+        ) : (
+          <p>No items yet</p>
+        )}
       </div>
 
       {order.status === "open" && (
