@@ -70,10 +70,20 @@ export default function OrderPage() {
 
       setQuantity(1);
       setSelectedFood(null);
-      fetchOrder(); // refresh order
+      fetchOrder();
     } catch (error) {
       console.error("Failed to add item", error);
       alert("Failed to add item");
+    }
+  };
+
+  const handleRemoveItem = async (itemId: number) => {
+    try {
+      await api.delete(`/orders/${id}/items/${itemId}`);
+      fetchOrder();
+    } catch (error) {
+      console.error("Failed to remove item", error);
+      alert("Failed to remove item");
     }
   };
 
@@ -131,15 +141,30 @@ export default function OrderPage() {
       {order.items.length === 0 && <p>No items yet</p>}
 
       {order.items.map((item) => (
-        <div key={item.id} className="border p-3 mb-2 rounded bg-white">
-          {item.food.name} x {item.quantity}
-          <span className="float-right">
-            Rp {(item.quantity * item.food.price).toLocaleString()}
-          </span>
+        <div
+          key={item.id}
+          className="border p-3 mb-2 rounded bg-white flex justify-between items-center"
+        >
+          <div>
+            <div>
+              {item.food.name} x {item.quantity}
+            </div>
+            <div className="text-sm text-gray-500">
+              Rp {(item.quantity * item.food.price).toLocaleString()}
+            </div>
+          </div>
+
+          {order.status === "open" && (
+            <button
+              onClick={() => handleRemoveItem(item.id)}
+              className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+            >
+              Remove
+            </button>
+          )}
         </div>
       ))}
 
-      {/* ADD ITEM */}
       {order.status === "open" && (
         <div className="mt-8 border-t pt-4">
           <h2 className="text-lg font-semibold mb-2">Add Item</h2>
