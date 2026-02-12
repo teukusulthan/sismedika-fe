@@ -22,10 +22,21 @@ export default function DashboardPage() {
 
   const handleOpenOrder = async (tableId: number) => {
     try {
-      const order = await tableService.openOrder(tableId);
-      navigate(`/orders/${order.id}`);
+      const response = await tableService.openOrder(tableId);
+
+      console.log("Open order response:", response);
+
+      const orderId = response?.data?.id ?? response?.id;
+
+      if (!orderId) {
+        alert("Order ID not found in response");
+        return;
+      }
+
+      navigate(`/orders/${orderId}`);
     } catch (error) {
-      console.error("Failed to open order", error);
+      console.error(error);
+      alert("Failed to open order");
     }
   };
 
