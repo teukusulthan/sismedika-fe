@@ -55,7 +55,6 @@ export default function OrderPage() {
       await Promise.all([fetchOrder(), fetchFoods()]);
       setLoading(false);
     };
-
     init();
   }, [id]);
 
@@ -122,86 +121,152 @@ export default function OrderPage() {
 
   return (
     <DashboardLayout>
-      <h1 className="text-2xl font-bold mb-4">Order #{order.id}</h1>
+      <div className="flex gap-8">
+        {/* LEFT SIDE - ORDER DETAIL */}
+        <div className="flex-1">
+          <div className="bg-white rounded-2xl shadow p-6">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h1 className="text-2xl font-bold">Order #{order.id}</h1>
+                <p className="text-sm text-gray-500">
+                  Status:{" "}
+                  <span
+                    className={`font-medium ${
+                      order.status === "open"
+                        ? "text-green-600"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    {order.status}
+                  </span>
+                </p>
+              </div>
 
-      <p>Status: {order.status}</p>
-      <p className="mb-4 font-semibold">Total: Rp {total.toLocaleString()}</p>
-
-      {order.status === "open" && (
-        <button
-          onClick={handleCloseOrder}
-          className="mb-6 bg-red-600 text-white px-4 py-2 rounded"
-        >
-          Close Order
-        </button>
-      )}
-
-      <h2 className="text-xl font-semibold mb-2">Items</h2>
-
-      {order.items.length === 0 && <p>No items yet</p>}
-
-      {order.items.map((item) => (
-        <div
-          key={item.id}
-          className="border p-3 mb-2 rounded bg-white flex justify-between items-center"
-        >
-          <div>
-            <div>
-              {item.food.name} x {item.quantity}
+              {order.status === "open" && (
+                <button
+                  onClick={handleCloseOrder}
+                  className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition"
+                >
+                  Close Order
+                </button>
+              )}
             </div>
-            <div className="text-sm text-gray-500">
-              Rp {(item.quantity * item.food.price).toLocaleString()}
+
+            <h2 className="text-lg font-semibold mb-4">Items</h2>
+
+            {order.items.length === 0 && (
+              <div className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg">
+                No items yet
+              </div>
+            )}
+
+            <div className="space-y-3">
+              {order.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex justify-between items-center bg-gray-50 p-4 rounded-xl"
+                >
+                  <div>
+                    <div className="font-medium">{item.food.name}</div>
+                    <div className="text-sm text-gray-500">
+                      Qty: {item.quantity}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="font-semibold">
+                      Rp {(item.quantity * item.food.price).toLocaleString()}
+                    </div>
+
+                    {order.status === "open" && (
+                      <button
+                        onClick={() => handleRemoveItem(item.id)}
+                        className="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {order.status === "open" && (
+              <div className="mt-8 border-t pt-6">
+                <h2 className="text-lg font-semibold mb-4">Add Item</h2>
+
+                <div className="flex gap-3">
+                  <select
+                    className="border rounded-lg p-2 flex-1"
+                    value={selectedFood ?? ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setSelectedFood(value ? Number(value) : null);
+                    }}
+                  >
+                    <option value="">Select food</option>
+                    {foods.map((food) => (
+                      <option key={food.id} value={food.id}>
+                        {food.name} - Rp {food.price.toLocaleString()}
+                      </option>
+                    ))}
+                  </select>
+
+                  <input
+                    type="number"
+                    min={1}
+                    className="border rounded-lg p-2 w-24"
+                    value={quantity}
+                    onChange={(e) => setQuantity(Number(e.target.value))}
+                  />
+
+                  <button
+                    disabled={!selectedFood}
+                    onClick={handleAddItem}
+                    className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg disabled:opacity-50 transition"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* RIGHT SIDE - SUMMARY */}
+        <div className="w-80">
+          <div className="bg-white rounded-2xl shadow p-6 h-full flex flex-col justify-between">
+            <div>
+              <h2 className="text-lg font-semibold mb-6">Summary</h2>
+
+              <div className="flex justify-between text-sm mb-2">
+                <span>Total Items</span>
+                <span>{order.items.length}</span>
+              </div>
+
+              <div className="flex justify-between text-sm mb-6">
+                <span>Total Amount</span>
+                <span className="font-bold text-lg">
+                  Rp {total.toLocaleString()}
+                </span>
+              </div>
+
+              <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+                <div
+                  className="bg-green-500 h-3 rounded-full transition-all"
+                  style={{
+                    width: total === 0 ? "0%" : "100%",
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="text-xs text-gray-400 text-center mt-6">
+              Order monitoring panel
             </div>
           </div>
-
-          {order.status === "open" && (
-            <button
-              onClick={() => handleRemoveItem(item.id)}
-              className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-            >
-              Remove
-            </button>
-          )}
         </div>
-      ))}
-
-      {order.status === "open" && (
-        <div className="mt-8 border-t pt-4">
-          <h2 className="text-lg font-semibold mb-2">Add Item</h2>
-
-          <select
-            className="border p-2 mr-2"
-            value={selectedFood ?? ""}
-            onChange={(e) => {
-              const value = e.target.value;
-              setSelectedFood(value ? Number(value) : null);
-            }}
-          >
-            <option value="">Select food</option>
-            {foods.map((food) => (
-              <option key={food.id} value={food.id}>
-                {food.name} - Rp {food.price.toLocaleString()}
-              </option>
-            ))}
-          </select>
-
-          <input
-            type="number"
-            min={1}
-            className="border p-2 mr-2 w-20"
-            value={quantity}
-            onChange={(e) => setQuantity(Number(e.target.value))}
-          />
-
-          <button
-            disabled={!selectedFood}
-            onClick={handleAddItem}
-            className="bg-black text-white px-4 py-2 rounded disabled:opacity-50"
-          >
-            Add
-          </button>
-        </div>
-      )}
+      </div>
     </DashboardLayout>
   );
 }
