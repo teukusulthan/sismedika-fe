@@ -7,6 +7,7 @@ export interface RestaurantTable {
 }
 
 export interface Order {
+  data: any;
   id: number;
   table_id: number;
   status: string;
